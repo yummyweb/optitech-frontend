@@ -1,101 +1,169 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { AlertTriangle, Check, Activity, Gauge, Thermometer, Droplet, Plane } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import FlightCard from './components/flightcard';
+
+// Cathay Pacific color palette
+const colors = {
+  primary: '#006564',    // Teal Green
+  secondary: '#A88C48',  // Metallic Gold
+  success: '#04605e',    // Darker Teal
+  warning: '#c1b49a',    // Brighter Gold
+  background: '#F5F5F5', // Light Gray
+  text: '#2D2926',       // Dark Gray
+  white: '#FFFFFF'
+};
+
+const MaintenanceDashboard = () => {
+  const [fleetStatus, setFleetStatus] = useState({
+    needsMaintenance: false,
+    probability: 0,
+    featureImportance: []
+  });
+
+  const [sensorData, setSensorData] = useState({
+    engine_temperature: 350,
+    vibration_level: 0.5,
+    fuel_consumption: 800,
+    flight_hours: 2500,
+    cycles: 500
+  });
+
+  const [historicalData, setHistoricalData] = useState([
+    { time: '1h', temp: 345, vib: 0.48 },
+    { time: '2h', temp: 350, vib: 0.5 },
+    { time: '3h', temp: 348, vib: 0.52 },
+    { time: '4h', temp: 352, vib: 0.49 },
+    { time: '5h', temp: 349, vib: 0.51 }
+  ]);
+
+  const fetchPrediction = async () => {
+    // try {
+    //   const response = await fetch('http://localhost:8000/predict', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(sensorData),
+    //   });
+    //   const data = await response.json();
+
+    //   setFleetStatus({
+    //     needsMaintenance: data.maintenance_needed,
+    //     probability: data.probability,
+    //     featureImportance: Object.entries(data.feature_importance).map(([name, value]) => ({
+    //       name: name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    //       value: value * 100
+    //     }))
+    //   });
+
+    //   // Update historical data
+    //   const newDataPoint = {
+    //     time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    //     temp: sensorData.engine_temperature,
+    //     vib: sensorData.vibration_level
+    //   };
+    //   setHistoricalData(prev => [...prev.slice(1), newDataPoint]);
+
+    // } catch (error) {
+    //   console.error('Error fetching prediction:', error);
+    // }
+  };
+
+  useEffect(() => {
+    fetchPrediction();
+    const interval = setInterval(fetchPrediction, 30000);
+    return () => clearInterval(interval);
+  }, [sensorData]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen p-8" style={{ background: colors.background }}>
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center space-x-4">
+            <Plane className="h-8 w-8" style={{ color: colors.primary }} />
+            <div>
+              <h1 className="text-3xl font-bold" style={{ color: colors.primary }}>
+                OptiTech
+              </h1>
+              <p className="text-sm" style={{ color: colors.secondary }}>
+                Cathay Pacific Airways
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 px-4 py-2 rounded-full"
+            style={{ background: colors.primary + '10' }}>
+            <Activity className="h-4 w-4" style={{ color: colors.primary }} />
+            <span className="text-sm" style={{ color: colors.primary }}>Live Updates</span>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FlightCard
+            flightId={1234}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <FlightCard
+            flightId={1234}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          <FlightCard
+            flightId={1234}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        {/* Trend Analysis */}
+        <Card className="border-none shadow-lg">
+          <CardHeader className="p-6">
+            <CardTitle className="text-xl font-semibold" style={{ color: colors.primary }}>
+              Performance Trends
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={historicalData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={colors.primary + '20'} />
+                  <XAxis dataKey="time" stroke={colors.text} />
+                  <YAxis yAxisId="left" stroke={colors.primary} />
+                  <YAxis yAxisId="right" orientation="right" stroke={colors.secondary} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: colors.white,
+                      border: `1px solid ${colors.primary}20`,
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="temp"
+                    stroke={colors.primary}
+                    strokeWidth={2}
+                    dot={{ fill: colors.primary }}
+                    name="Temperature"
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="vib"
+                    stroke={colors.secondary}
+                    strokeWidth={2}
+                    dot={{ fill: colors.secondary }}
+                    name="Vibration"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-}
+};
+
+export default MaintenanceDashboard;
